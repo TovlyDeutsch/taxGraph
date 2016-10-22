@@ -5,7 +5,7 @@ var areaDims = {width: svgDims.width - margin.left - margin.right,
                 height: svgDims.height - margin.top - margin.bottom};
 var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var x = d3.scaleTime()
+var x = d3.scaleLinear()
 .rangeRound([0, areaDims.width]);
 
 var y = d3.scaleLinear()
@@ -22,8 +22,10 @@ d3.tsv("taxRates.tsv", function(d) {
 }, function(error, data) {
   if (error) throw error;
 
-  x.domain(d3.extent(data, function(d) { return d["Tax Bracket"]; }));
-  y.domain(d3.extent(data, function(d) { return d["Tax Rate"]; }));
+  dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
+               yMax: d3.max(data, function(d) { return d["Tax Rate"]; })};
+  x.domain([0, dataRange.xMax]);
+  y.domain([0, dataRange.yMax]);
 
   g.append("g")
   .attr("class", "axis axis--x")
@@ -85,10 +87,9 @@ d3.tsv("taxRates.tsv", function(d) {
 
     var cx = parseInt(dragPoint.attr("cx"));
     var cy = parseInt(dragPoint.attr("cy"));
-    data[i]["Tax Bracket"] = (cx - margin.left) * 413350.00 / areaDims.width;
-    data[i]["Tax Rate"] = ((cy - margin.top)) * 35 / areaDims.height;
+    data[i]["Tax Bracket"] = (cx - margin.left) * dataRange.xMax / areaDims.width;
+    data[i]["Tax Rate"] = (areaDims.height - (cy - margin.top)) * dataRange.yMax / areaDims.height;
 
-    //data[i]["Tax Rate"] -= (d3.event.dy) * 35 / 600;
     renderGraph(data);
   }
 });
