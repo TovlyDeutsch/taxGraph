@@ -7,10 +7,16 @@ class App extends Component {
     super();
     this.state = {data: null};
   }
+  publishData(data) {
+    this.setState({data: data});
+    console.log("APP CONTROLLED DATA UPDATE");
+    console.log(this.state.data);
+  }
   render() {
     return (
       <Graph width="960" height="500"
            margin={{top: 20, right: 20, bottom: 30, left: 50}}
+           publishData={(data) => this.publishData(data)}
            />
     );
   }
@@ -123,8 +129,9 @@ class Graph extends Component {
         d3.select(this).raise().classed("active", true);
       })
       .on("end", function(d) {
-        console.log("Drag End");
         d3.select(this).raise().classed("active", false);
+        self.props.publishData(self.state.data);
+        console.log("Drag End");
       })
       .on("drag", function(d) {
         console.log("Dragging");
