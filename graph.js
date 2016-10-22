@@ -77,18 +77,27 @@ d3.tsv("taxRates.tsv", function(d) {
   }
 
   function dragged(d) {
-    var i = parseInt(this.getAttribute('index'));
-
-    // from http://stackoverflow.com/questions/17775806/updating-graph-as-i-drag-a-point-around
     var dragPoint = d3.select(this);
-    dragPoint
-    .attr("cx", d3.event.dx + parseInt(dragPoint.attr("cx")))
-    .attr("cy", d3.event.dy + parseInt(dragPoint.attr("cy")));
+    var i = parseInt(this.getAttribute('index'));
+    var cy = d3.event.dy + parseInt(dragPoint.attr("cy"));
+    var cx = d3.event.dx + parseInt(dragPoint.attr("cx"));
 
-    var cx = parseInt(dragPoint.attr("cx"));
-    var cy = parseInt(dragPoint.attr("cy"));
-    data[i]["Tax Bracket"] = (cx - margin.left) * dataRange.xMax / areaDims.width;
-    data[i]["Tax Rate"] = (areaDims.height - (cy - margin.top)) * dataRange.yMax / areaDims.height;
+    var newYVal = (areaDims.height - (cy - margin.top)) * dataRange.yMax / areaDims.height;
+    data[i]["Tax Rate"] = newYVal;
+    dragPoint = dragPoint.attr("cy", cy);
+
+    var surXVals = {prev: i > 0 ? data[i-1]["Tax Bracket"] : 0,
+                    next: i + 1 < data.length ? data[i+1]["Tax Bracket"] : dataRange.xMax};
+
+    var newXVal = (cx - margin.left) * dataRange.xMax / areaDims.width;
+    console.log(surXVals)
+    console.log(newXVal)
+    if (!(newXVal < surXVals.prev || newXVal > surXVals.next)) {
+      console.log("YO");
+      // only update X if we are within constraints of the surrounding points
+      data[i]["Tax Brackets"] = newXVal;
+      dragPoint.attr("cx", cx);
+    }
 
     renderGraph(data);
   }
