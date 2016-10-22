@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import * as d3 from 'd3';
 import {event as currentEvent} from 'd3';
+// import $ from 'jquery';
 
 import 'spectre.css/dist/spectre.min.css'
 import './App.css'
@@ -118,10 +119,39 @@ class Graph extends Component {
     svg.selectAll('path').remove();
     svg.selectAll('circle').remove();
 
-    g.append("path")
+    var path = g.append("path")
       .datum(data)
       .attr("class", "line")
-      .attr("d", line);
+      .attr("d", line)
+
+      // path.on('mouseover', function(d){
+      //   console.log('gerhw')
+      //   self.setState({mouseover: true});
+      // })
+
+      // path.on('mouseout', function(d){
+      //   self.setState({mouseover: false});
+      // })
+
+      path.on('click', function(d){
+          var coords = d3.mouse(this);
+          var newData = {
+            'Tax Bracket': Math.round( x.invert(coords[0])),  // Takes the pixel number to convert to number
+            'Tax Rate': Math.round( y.invert(coords[1]))
+          };
+          var dat = self.state.data;
+          dat.push(newData);
+          console.log(dat);
+          dat.sort(function(a, b) {
+            var num = a["Tax Bracket"] - b["Tax Bracket"];
+            if(num === 0){
+              return a["Tax Rate"] - b["Tax Rate"]
+            }
+            return num;
+          });
+          console.log(dat)
+          self.setState({data: dat});
+      })
 
     svg.selectAll("dot")
       .data(data)

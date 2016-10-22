@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "d3": "^4.2.8",
+    "jquery": "^3.1.1",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "spectre.css": "^0.1.27"

@@ -14,6 +14,7 @@ svg {
 
 circle:hover {
   transform: scale(2);
+  
 }
 circle {
   transition: all 0.2s;
