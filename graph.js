@@ -90,25 +90,18 @@ d3.tsv("taxRates.tsv", function(d) {
       var prev = data[i-1]["Tax Bracket"];
       var next = data[i+1]["Tax Bracket"];
       if (newXVal < prev) {
-        dragPoint.attr("cx",
-          prev * areaDims.width / dataRange.xMax + margin.left);
         data[i]["Tax Bracket"] = prev;
       } else if (newXVal > next) {
-        dragPoint.attr("cx",
-          next * areaDims.width / dataRange.xMax + margin.left);
         data[i]["Tax Bracket"] = next;
       } else {
-        dragPoint.attr("cx", cx);
         data[i]["Tax Bracket"] = newXVal;
       }
     }
 
     var newYVal = (areaDims.height - (cy - margin.top)) * dataRange.yMax / areaDims.height;
     if (newYVal < 0) {
-      dragPoint.attr("cy", areaDims.height - margin.top);
       data[i]["Tax Rate"] = 0;
     } else {
-      dragPoint.attr("cy", cy);
       data[i]["Tax Rate"] = newYVal;
     }
 
