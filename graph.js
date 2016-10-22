@@ -78,26 +78,31 @@ d3.tsv("taxRates.tsv", function(d) {
       var revenue = 0;
 
       // iterate through census data
-      for (i = 0; i < censusInfo.length; censusInfo++) {
+      for (i = 0; i < censusInfo.length; i++) {
         for (j = 0; j < data.length; j++) {
           if (data[j]["Tax Bracket"] > censusInfo[i]["Dollars"]) {
             var left = j - 1;
             break;
           }
         }
+        //console.log(left);
+
         var dy = data[left + 1]["Tax Rate"] - data[left]["Tax Rate"];
         var dx = data[left + 1]["Tax Bracket"] - data[left]["Tax Bracket"];
         var slope = dy/dx;
         var yValue = data[left]["Tax Rate"] + slope * (censusInfo[i]["Dollars"] - data[left]["Tax Rate"]);
-        revenue += censusInfo[i]["Number"] * censusInfo[i]["Dollars"] * yValue;
-        console.log(revenue);
+        // 985 is total number of housholds surveryed/ number of housholds in the us
+        revenue += censusInfo[i]["Number"] * 985 * (
+          censusInfo[i]["Dollars"] * yValue +
+          censusInfo[i]["Dollars"] * yValue
+        )
       }
+      console.log(revenue);
     }); // end parse TaxData
 
-  } // end render function
+  } // end rendergraph() function
 
   renderGraph(data);
-
 
   function dragstarted(d) {
     d3.select(this).raise().classed("active", true);
