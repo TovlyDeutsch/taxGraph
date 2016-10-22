@@ -9,8 +9,6 @@ class App extends Component {
   }
   publishData(data) {
     this.setState({data: data});
-    console.log("APP CONTROLLED DATA UPDATE");
-    console.log(this.state.data);
   }
   render() {
     return (
@@ -29,7 +27,6 @@ class Graph extends Component {
   }
 
   componentDidMount() {
-    console.log("componentDidMount!");
     var self = this;
 
     var margin = this.props.margin;
@@ -86,8 +83,6 @@ class Graph extends Component {
         data: data
       });
 
-      console.log("componentDidMount's callbacks have finished!");
-      console.log(self.state);
     });
   }
 
@@ -125,16 +120,13 @@ class Graph extends Component {
     svg.selectAll("circle")
       .call(d3.drag()
       .on("start", function(d) {
-        console.log("Drag Start");
         d3.select(this).raise().classed("active", true);
       })
       .on("end", function(d) {
         d3.select(this).raise().classed("active", false);
         self.props.publishData(self.state.data);
-        console.log("Drag End");
       })
       .on("drag", function(d) {
-        console.log("Dragging");
         var dragPoint = d3.select(this);
         var i = parseInt(this.getAttribute('index'));
 
@@ -168,7 +160,6 @@ class Graph extends Component {
   }
 
   render() {
-    console.log("RENDER");
     if (this.state.data != null) {
       this.renderGraph()
     }
