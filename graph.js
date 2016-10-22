@@ -1,14 +1,15 @@
-var svg = d3.select("svg"),
-margin = {top: 20, right: 20, bottom: 30, left: 50},
-width = +svg.attr("width") - margin.left - margin.right,
-height = +svg.attr("height") - margin.top - margin.bottom,
-g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var svg = d3.select("svg");
+var svgDims = {width: +svg.attr("width"), height: +svg.attr("height")};
+var margin = {top: 20, right: 20, bottom: 30, left: 50};
+var areaDims = {width: svgDims.width - margin.left - margin.right,
+                height: svgDims.height - margin.top - margin.bottom};
+var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var x = d3.scaleTime()
-.rangeRound([0, width]);
+.rangeRound([0, areaDims.width]);
 
 var y = d3.scaleLinear()
-.rangeRound([height, 0]);
+.rangeRound([areaDims.height, 0]);
 
 var line = d3.line()
 .x(function(d) { return x(d["Tax Bracket"]); })
@@ -26,7 +27,7 @@ d3.tsv("taxRates.tsv", function(d) {
 
   g.append("g")
   .attr("class", "axis axis--x")
-  .attr("transform", "translate(0," + height + ")")
+  .attr("transform", "translate(0," + areaDims.height + ")")
   .call(d3.axisBottom(x));
 
   g.append("g")
@@ -74,18 +75,20 @@ d3.tsv("taxRates.tsv", function(d) {
   }
 
   function dragged(d) {
-    // var i = parseInt(this.getAttribute('index'));
+    var i = parseInt(this.getAttribute('index'));
+
     // from http://stackoverflow.com/questions/17775806/updating-graph-as-i-drag-a-point-around
     var dragPoint = d3.select(this);
     dragPoint
     .attr("cx", d3.event.dx + parseInt(dragPoint.attr("cx")))
     .attr("cy", d3.event.dy + parseInt(dragPoint.attr("cy")));
-    // end citation
-    var i = parseInt(this.getAttribute('index'));
-    data[i]["Tax Bracket"] = (parseInt(dragPoint.attr("cx")) - 50) * 413350.00 / 890;
-    //data[i]["Tax Rate"] = (450 - parseFloat(dragPoint.attr("cy"))) * 35 / 450;
-    data[i]["Tax Rate"] -= (d3.event.dy) * 35 / 600;
-    //console.log(d3.event.dx, d3.event.dy);
+
+    var cx = parseInt(dragPoint.attr("cx"));
+    var cy = parseInt(dragPoint.attr("cy"));
+    data[i]["Tax Bracket"] = (cx - margin.left) * 413350.00 / areaDims.width;
+    data[i]["Tax Rate"] = ((cy - margin.top)) * 35 / areaDims.height;
+
+    //data[i]["Tax Rate"] -= (d3.event.dy) * 35 / 600;
     renderGraph(data);
   }
 });
