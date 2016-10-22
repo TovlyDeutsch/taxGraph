@@ -42,12 +42,13 @@ class Statistics extends Component {
   }
   componentDidMount() {
     var self = this;
-    d3.tsv("censusIncome.tsv", function(d) {
+    d3.tsv("censusIncomes.tsv", function(d) {
       d["Number"] = +d["Number"];
       d["Dollars"] = +d["Dollars"];
       return d;
     }, function(error, censusInfo) {
       if (error) throw error;
+      console.log(censusInfo);
       self.setState({censusInfo: censusInfo});
     });
   }
@@ -87,10 +88,43 @@ class Statistics extends Component {
     return 0;
   }
 
+  totalRevenue() {
+    var data = this.props.data;
+    var censusInfo = this.state.censusInfo;
+    if (censusInfo != null && data != null) {
+      var revenue = 0;
+      for (var i = 0; i < censusInfo.length; i++) {
+        var numPersons = censusInfo[i]["Number"] * 990;
+        var income = censusInfo[i]["Dollars"];
+        var taxes = this.amtTaxes(income);
+        revenue += numPersons * taxes;
+      }
+      return revenue;
+    }
+    return 0;
+  }
+
   render() {
     var censusInfo = this.state.censusInfo;
     if (censusInfo != null && this.props.data != null) {
-      return <p>${this.amtTaxes(190000)}</p>
+      return (
+        <table className="table table-striped table-hover">
+          <thead>
+            <th>Estimates</th>
+            <th>USD</th>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Income Tax</td>
+              <td>${this.amtTaxes(190000)}</td>
+            </tr>
+            <tr>
+              <td>Federal Tax Revenue</td>
+              <td>${this.totalRevenue()}</td>
+            </tr>
+          </tbody>
+        </table>
+      );
     } else {
       return <p>Loading...</p>
     }
