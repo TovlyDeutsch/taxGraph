@@ -8,6 +8,14 @@ svg {
 
 .line {
   fill: none;
-  stroke: blue;
-  stroke-width: 1.5px;
+  stroke: #5fbeff;
+  stroke-width: 2px;
+}
+
+circle:hover {
+  transform: scale(2);
+}
+circle {
+  transition: all 0.2s;
+  transform-origin: 50% 50%;
 }

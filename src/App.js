@@ -20,6 +20,10 @@ class App extends Component {
         <div id="graph-container">
           <div id="graph-column">
             <h1>Tax Graph</h1>
+            <Graph width="960" height="500"
+            margin={{top: 10 , right: 10, bottom: 20, left: 20}}
+            publishData={(data) => this.publishData(data)}
+            />
           </div>
           <div id="statistics-column">
             <h2>Statistics</h2>
