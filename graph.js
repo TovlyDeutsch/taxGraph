@@ -82,23 +82,25 @@ d3.tsv("taxRates.tsv", function(d) {
 
     var cx = d3.event.x;
     var cy = d3.event.y;
-    //var cx = d3.event.dx + parseInt(dragPoint.attr("cx"));
-    //var cy = d3.event.dy + parseInt(dragPoint.attr("cy"));
 
-    var surXVals = {prev: i > 0 ? data[i-1]["Tax Bracket"] : 0,
-                    next: i + 1 < data.length ? data[i+1]["Tax Bracket"] : dataRange.xMax};
-    var newXVal = (cx - margin.left) * dataRange.xMax / areaDims.width;
-    if (newXVal < surXVals.prev) {
-      dragPoint.attr("cx",
-        surXVals.prev * areaDims.width / dataRange.xMax + margin.left);
-      data[i]["Tax Bracket"] = surXVals.prev;
-    } else if (newXVal > surXVals.next) {
-      dragPoint.attr("cx",
-        surXVals.next * areaDims.width / dataRange.xMax + margin.left);
-      data[i]["Tax Bracket"] = surXVals.next;
-    } else {
-      dragPoint.attr("cx", cx);
-      data[i]["Tax Bracket"] = newXVal;
+    if (i != 0 && i != data.length - 1) {
+      // only allow moving interior points
+
+      var newXVal = (cx - margin.left) * dataRange.xMax / areaDims.width;
+      var prev = data[i-1]["Tax Bracket"];
+      var next = data[i+1]["Tax Bracket"];
+      if (newXVal < prev) {
+        dragPoint.attr("cx",
+          prev * areaDims.width / dataRange.xMax + margin.left);
+        data[i]["Tax Bracket"] = prev;
+      } else if (newXVal > next) {
+        dragPoint.attr("cx",
+          next * areaDims.width / dataRange.xMax + margin.left);
+        data[i]["Tax Bracket"] = next;
+      } else {
+        dragPoint.attr("cx", cx);
+        data[i]["Tax Bracket"] = newXVal;
+      }
     }
 
     dragPoint.attr("cy", cy);
