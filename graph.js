@@ -79,25 +79,20 @@ d3.tsv("taxRates.tsv", function(d) {
   function dragged(d) {
     var dragPoint = d3.select(this);
     var i = parseInt(this.getAttribute('index'));
-    var cy = d3.event.dy + parseInt(dragPoint.attr("cy"));
-    var cx = d3.event.dx + parseInt(dragPoint.attr("cx"));
 
-    var newYVal = (areaDims.height - (cy - margin.top)) * dataRange.yMax / areaDims.height;
-    data[i]["Tax Rate"] = newYVal;
-    dragPoint = dragPoint.attr("cy", cy);
+    var cx = d3.event.dx + parseInt(dragPoint.attr("cx"));
+    var cy = d3.event.dy + parseInt(dragPoint.attr("cy"));
 
     var surXVals = {prev: i > 0 ? data[i-1]["Tax Bracket"] : 0,
                     next: i + 1 < data.length ? data[i+1]["Tax Bracket"] : dataRange.xMax};
-
     var newXVal = (cx - margin.left) * dataRange.xMax / areaDims.width;
-    console.log(surXVals)
-    console.log(newXVal)
     if (!(newXVal < surXVals.prev || newXVal > surXVals.next)) {
-      console.log("YO");
-      // only update X if we are within constraints of the surrounding points
-      data[i]["Tax Brackets"] = newXVal;
       dragPoint.attr("cx", cx);
+      data[i]["Tax Bracket"] = newXVal;
     }
+
+    dragPoint.attr("cy", cy);
+    data[i]["Tax Rate"] = (areaDims.height - (cy - margin.top)) * dataRange.yMax / areaDims.height;
 
     renderGraph(data);
   }
