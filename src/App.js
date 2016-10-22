@@ -16,17 +16,85 @@ class App extends Component {
   }
   render() {
     return (
-      <div id="top-container">
-        <div id="graph-container">
-          <div id="graph-column">
+      <div className="container">
+        <div className="columns">
+          <div className="column col-6">
             <h1>Tax Graph</h1>
+            <Graph width="400" height="300"
+                 margin={{top: 10, right: 10, bottom: 20, left: 20}}
+                 publishData={(data) => this.publishData(data)}
+                 />
           </div>
-          <div id="statistics-column">
+          <div className="column col-6">
             <h2>Statistics</h2>
+            <Statistics data={this.state.data} />
           </div>
         </div>
       </div>
     );
+  }
+}
+
+class Statistics extends Component {
+  constructor() {
+    super();
+    this.state = {censusInfo: null};
+  }
+  componentDidMount() {
+    var self = this;
+    d3.tsv("censusIncome.tsv", function(d) {
+      d["Number"] = +d["Number"];
+      d["Dollars"] = +d["Dollars"];
+      return d;
+    }, function(error, censusInfo) {
+      if (error) throw error;
+      self.setState({censusInfo: censusInfo});
+    });
+  }
+
+  amtTaxes(income) {
+    var data = this.props.data;
+    if (data != null) {
+      var amt = 0;
+
+      for (var i = 1; i < data.length; i++) {
+        var lowerBracket = data[i-1]["Tax Bracket"];
+        var lowerRate = data[i-1]["Tax Rate"] / 100;
+        var upperBracket = data[i]["Tax Bracket"];
+        var upperRate = data[i]["Tax Rate"] / 100;
+
+        // only proceed if not a vertical line
+        if (upperBracket != lowerBracket) {
+          var slope = (upperRate - lowerRate) / (upperBracket - lowerBracket)
+
+          var dx;
+          if (upperBracket > income) {
+            dx = income - lowerBracket;
+            // the following upperRate interpolation may not be needed
+            upperRate = lowerRate + slope * dx;
+
+            // schedule loop termination
+            i = data.length;
+          } else {
+            dx = upperBracket - lowerBracket;
+          }
+
+          amt += lowerRate * dx;
+        }
+      }
+
+      return amt;
+    }
+    return 0;
+  }
+
+  render() {
+    var censusInfo = this.state.censusInfo;
+    if (censusInfo != null && this.props.data != null) {
+      return <p>${this.amtTaxes(200000)}</p>
+    } else {
+      return <p>Loading...</p>
+    }
   }
 }
 
@@ -93,6 +161,7 @@ class Graph extends Component {
         data: data
       });
 
+      self.props.publishData(data);
     });
   }
 
