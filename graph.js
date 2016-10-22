@@ -1,3 +1,4 @@
+(function() {
 var svg = d3.select("svg"),
 margin = {top: 20, right: 20, bottom: 30, left: 50},
 width = +svg.attr("width") - margin.left - margin.right,
@@ -13,6 +14,7 @@ var y = d3.scaleLinear()
 var line = d3.line()
 .x(function(d) { return x(d["Tax Bracket"]); })
 .y(function(d) { return y(d["Tax Rate"]); });
+
 
 d3.tsv("taxRates.tsv", function(d) {
   d["Tax Bracket"] = +d["Tax Bracket"];
@@ -43,7 +45,8 @@ d3.tsv("taxRates.tsv", function(d) {
   function renderGraph(data) {
     svg.selectAll('path').remove()
     svg.selectAll('circle').remove()
-    g.append("path")
+
+    var lines = g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("d", line);
@@ -61,7 +64,35 @@ d3.tsv("taxRates.tsv", function(d) {
     .on("start", dragstarted)
     .on("drag", dragged)
     .on("end", dragended));
-  }
+
+    // caclulate revenue
+
+    d3.tsv("TaxData.tsv", function(d) {
+      d["Number"] = +d["Number"];
+      d["Dollars"] = +d["Dollars"];
+      return d;
+    }, function(error, censusInfo) {
+      if (error) throw error;
+      var revenue = 0;
+
+      // iterate through census data
+      for (i = 0; i < censusInfo.length; censusInfo++) {
+        for (j = 0; j < data.length; j++) {
+          if (data[j]["Tax Bracket"] > censusInfo[i]["Dollars"]) {
+            var left = j - 1;
+            break;
+          }
+        }
+        var dy = data[left + 1]["Tax Rate"] - data[left]["Tax Rate"];
+        var dx = data[left + 1]["Tax Bracket"] - data[left]["Tax Bracket"];
+        var slope = dy/dx;
+        var yValue = data[left]["Tax Rate"] + slope * (censusInfo[i]["Dollars"] - data[left]["Tax Rate"]);
+        revenue += censusInfo[i]["Number"] * censusInfo[i]["Dollars"] * yValue;
+        console.log(revenue);
+      }
+    }); // end parse TaxData
+
+  } // end render function
 
   renderGraph(data);
 
@@ -89,3 +120,6 @@ d3.tsv("taxRates.tsv", function(d) {
     renderGraph(data);
   }
 });
+
+
+})();
