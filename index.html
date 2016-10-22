@@ -65,7 +65,6 @@ d3.tsv("taxRates.tsv", function(d) {
   .style("text-anchor", "end")
   .text("Price ($)");
 
-
   function renderGraph(data) {
     svg.selectAll('path').remove()
     svg.selectAll('circle').remove()
@@ -73,9 +72,7 @@ d3.tsv("taxRates.tsv", function(d) {
     .datum(data)
     .attr("class", "line")
     .attr("d", line);
-  }
 
-  function renderGraph(data) {
     svg.selectAll("dot")
     .data(data)
     .enter().append("circle")
@@ -91,7 +88,6 @@ d3.tsv("taxRates.tsv", function(d) {
     .on("end", dragended));
   }
 
-  renderLine(data);
   renderGraph(data);
 
 
@@ -118,7 +114,8 @@ d3.tsv("taxRates.tsv", function(d) {
         // end citation
         var i = parseInt(this.getAttribute('index'));
         data[i]["Tax Bracket"] = (parseInt(dragPoint.attr("cx")) - 50) * 413350.00 / 890;
-        data[i]["Tax Rate"] = (450 - parseFloat(dragPoint.attr("cy"))) * 35 / 450;
+        //data[i]["Tax Rate"] = (450 - parseFloat(dragPoint.attr("cy"))) * 35 / 450;
+        data[i]["Tax Rate"] -= (d3.event.dy) * 35 / 600;
         console.log(d3.event.dx, d3.event.dy);
         renderGraph(data);
   }
