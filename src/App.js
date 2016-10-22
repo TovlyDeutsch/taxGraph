@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
+
 import * as d3 from 'd3';
 import {event as currentEvent} from 'd3';
+
+import 'spectre.css/dist/spectre.min.css'
+import './App.css'
 
 class App extends Component {
   constructor() {
@@ -12,10 +16,16 @@ class App extends Component {
   }
   render() {
     return (
-      <Graph width="960" height="500"
-           margin={{top: 20, right: 20, bottom: 30, left: 50}}
-           publishData={(data) => this.publishData(data)}
-           />
+      <div id="top-container">
+        <div id="graph-container">
+          <div id="graph-column">
+            <h1>Tax Graph</h1>
+          </div>
+          <div id="statistics-column">
+            <h2>Statistics</h2>
+          </div>
+        </div>
+      </div>
     );
   }
 }
@@ -56,7 +66,7 @@ class Graph extends Component {
       g.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + areaDims.height + ")")
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x))
 
       g.append("g")
         .attr("class", "axis axis--y")
@@ -67,7 +77,7 @@ class Graph extends Component {
         .attr("y", 6)
         .attr("dy", "0.71em")
         .style("text-anchor", "end")
-        .text("Price ($)");
+        .text("Rate (%)");
 
       self.setState({
         areaDims: areaDims,
@@ -114,8 +124,8 @@ class Graph extends Component {
       .enter().append("circle")
       .attr("r", 3.5)
       .attr("index", function(d, i) { return i; })
-      .attr("cx", function(d) { return x(d["Tax Bracket"]) + 50; })
-      .attr("cy", function(d) { return y(d["Tax Rate"]) + 20; });
+      .attr("cx", function(d) { return x(d["Tax Bracket"]) + margin.left; })
+      .attr("cy", function(d) { return y(d["Tax Rate"]) + margin.top; });
 
     svg.selectAll("circle")
       .call(d3.drag()

@@ -1,14 +1,11 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-}
 svg {
   margin: 30px;
 }
+
 .axis--x path {
   display: none;
 }
+
 .line {
   fill: none;
   stroke: blue;
