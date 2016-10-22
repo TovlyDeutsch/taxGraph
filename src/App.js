@@ -70,7 +70,6 @@ class Statistics extends Component {
           var dx;
           if (upperBracket > income) {
             dx = income - lowerBracket;
-            // the following upperRate interpolation may not be needed
             upperRate = lowerRate + slope * dx;
 
             // schedule loop termination
@@ -79,7 +78,7 @@ class Statistics extends Component {
             dx = upperBracket - lowerBracket;
           }
 
-          amt += lowerRate * dx;
+          amt += ((lowerRate + upperRate) * dx) / 2;
         }
       }
 
@@ -91,7 +90,7 @@ class Statistics extends Component {
   render() {
     var censusInfo = this.state.censusInfo;
     if (censusInfo != null && this.props.data != null) {
-      return <p>${this.amtTaxes(200000)}</p>
+      return <p>${this.amtTaxes(190000)}</p>
     } else {
       return <p>Loading...</p>
     }
