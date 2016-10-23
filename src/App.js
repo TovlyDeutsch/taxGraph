@@ -141,7 +141,7 @@ class Statistics extends Component {
       return (
         <div className="container">
           <div className="income-element">
-            <label className="form-label income-element">Your Income</label>
+            <label className="form-label income-element">Enter Your Income</label>
             <input type="range" className="form-input income-element"
               value={this.state.income}
               min={0}
@@ -166,8 +166,16 @@ class Statistics extends Component {
             </thead>
             <tbody>
               <tr>
-                <td>Income Tax</td>
-                <td>${this.formatMonetaryOutput(this.amtTaxes(190000))}</td>
+                <td>Your Income Tax</td>
+                <td>${this.formatMonetaryOutput(this.amtTaxes(this.state.income))}</td>
+              </tr>
+              <tr>
+                <td>Tax for Income of $50,000</td>
+                <td>${this.formatMonetaryOutput(this.amtTaxes(50000))}</td>
+              </tr>
+              <tr>
+                <td>Tax for Income of $16,000 <small>(family of 2 in poverty)</small></td>
+                <td>${this.formatMonetaryOutput(this.amtTaxes(16000))}</td>
               </tr>
               <tr>
                 <td>Federal Tax Revenue</td>
@@ -212,7 +220,8 @@ class Graph extends Component {
     }, function(error, data) {
       if (error) throw error;
       var dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
-                       yMax: d3.max(data, function(d) { return d["Tax Rate"]; })};
+                       yMax: 100};
+                       //yMax: d3.max(data, function(d) { return d["Tax Rate"]; })};
       self.props.publishDataRange(dataRange);
 
       x.domain([0, dataRange.xMax]);
@@ -317,6 +326,8 @@ class Graph extends Component {
         var newYVal = (areaDims.height - (cy - margin.top)) * dataRange.yMax / areaDims.height;
         if (newYVal < 0) {
           data[i]["Tax Rate"] = 0;
+        } if (newYVal > 100) {
+          data[i]["Tax Rate"] = 100;
         } else {
           data[i]["Tax Rate"] = newYVal;
         }
