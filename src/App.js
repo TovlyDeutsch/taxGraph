@@ -12,15 +12,36 @@ class App extends Component {
     super();
     this.state = {
       data: null,
-      dataRange: {xMax: 500000, yMax: 40}
+      dataRange: null
     };
   }
+
+  componentDidMount() {
+    var self = this;
+    d3.tsv("taxRates.tsv", function(d) {
+      d["Tax Bracket"] = +d["Tax Bracket"];
+      d["Tax Rate"] = +d["Tax Rate"];
+      return d;
+    }, function(error, data) {
+      if (error) throw error;
+      var dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
+                       yMax: 100};
+      console.log(data);
+      self.setState({
+        data: data,
+        dataRange: dataRange
+      });
+    });
+  }
+
   publishDataRange(dataRange) {
     this.setState({dataRange: dataRange});
   }
+
   publishData(data) {
     this.setState({data: data});
   }
+
   render() {
     return (
       <div className="container">
@@ -31,6 +52,8 @@ class App extends Component {
                  margin={{top: 10, right: 10, bottom: 30, left: 30}}
                  publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
                  publishData={(data) => this.publishData(data)}
+                 dataRange={this.state.dataRange}
+                 data={this.state.data}
                  />
           </div>
           <div id="statistics-column">
@@ -195,7 +218,7 @@ class Statistics extends Component {
 class Graph extends Component {
   constructor() {
     super();
-    this.state = {data: null};
+    this.state = {svg: null};
   }
 
   componentDidMount() {
@@ -214,51 +237,16 @@ class Graph extends Component {
     var line = d3.line().x(function(d) { return x(d["Tax Bracket"]); })
                         .y(function(d) { return y(d["Tax Rate"]); });
 
-    d3.tsv("taxRates.tsv", function(d) {
-      d["Tax Bracket"] = +d["Tax Bracket"];
-      d["Tax Rate"] = +d["Tax Rate"];
-      return d;
-    }, function(error, data) {
-      if (error) throw error;
-      var dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
-                       yMax: 100};
-                       //yMax: d3.max(data, function(d) { return d["Tax Rate"]; })};
-      self.props.publishDataRange(dataRange);
+    self.setState({
+      areaDims: areaDims,
+      svgDims: svgDims,
+      margin: margin,
 
-      x.domain([0, dataRange.xMax]);
-      y.domain([0, dataRange.yMax]);
-
-      g.append("g")
-        .attr("class", "axis axis--x")
-        .attr("transform", "translate(0," + areaDims.height + ")")
-        .call(d3.axisBottom(x))
-
-      g.append("g")
-        .attr("class", "axis axis--y")
-        .call(d3.axisLeft(y))
-        .append("text")
-        .attr("fill", "#000")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 7)
-        .attr("dy", "0.71em")
-        .style("text-anchor", "end")
-        .text("Rate (%)");
-
-      self.setState({
-        areaDims: areaDims,
-        svgDims: svgDims,
-        margin: margin,
-        dataRange: dataRange,
-
-        svg: svg,
-        line: line,
-        g: g,
-        x: x,
-        y: y,
-        data: data
-      });
-
-      self.props.publishData(data);
+      svg: svg,
+      line: line,
+      g: g,
+      x: x,
+      y: y,
     });
   }
 
@@ -268,14 +256,39 @@ class Graph extends Component {
     var areaDims = this.state.areaDims;
     var svgDims = this.state.svgDims;
     var margin = this.state.margin;
-    var dataRange = this.state.dataRange;
-
     var svg = this.state.svg;
     var line = this.state.line;
     var g = this.state.g;
     var x = this.state.x;
     var y = this.state.y;
-    var data = this.state.data;
+
+    var dataRange = this.props.dataRange;
+    var data = this.props.data;
+
+    if (dataRange == null || data == null) {
+      return;
+    }
+    console.log("HEY");
+
+    x.domain([0, dataRange.xMax]);
+    y.domain([0, dataRange.yMax]);
+
+    g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + areaDims.height + ")")
+      .call(d3.axisBottom(x))
+
+    g.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisLeft(y))
+      .append("text")
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 7)
+      .attr("dy", "0.71em")
+      .style("text-anchor", "end")
+      .text("Rate (%)");
+
 
     svg.selectAll('path').remove();
     svg.selectAll('circle').remove();
@@ -292,9 +305,8 @@ class Graph extends Component {
         'Tax Rate': Math.round( y.invert(coords[1]))
       };
 
-      var dat = self.state.data;
-      dat.push(newData);
-      dat.sort(function(a, b) {
+      data.push(newData);
+      data.sort(function(a, b) {
         var num = a["Tax Bracket"] - b["Tax Bracket"];
         if(num === 0){
           return a["Tax Rate"] - b["Tax Rate"]
@@ -302,7 +314,7 @@ class Graph extends Component {
         return num;
       });
 
-      self.setState({data: dat});
+      self.props.publishData(data);
     });
 
     svg.selectAll("dot")
@@ -320,10 +332,9 @@ class Graph extends Component {
       })
       .on("end", function(d) {
         d3.select(this).raise().classed("active", false);
-        self.props.publishData(self.state.data);
+        self.props.publishData(data);
       })
       .on("drag", function(d) {
-        var dragPoint = d3.select(this);
         var i = parseInt(this.getAttribute('index'));
 
         var cx = currentEvent.x;
@@ -353,12 +364,14 @@ class Graph extends Component {
           data[i]["Tax Rate"] = newYVal;
         }
 
-        self.setState({data: data});
+        self.props.publishData(data);
       }));
   }
 
   render() {
-    if (this.state.data != null) {
+    console.log("Blank Render");
+    if (this.props.data != null && this.props.dataRange != null) {
+      console.log("RENDERING GRAPH");
       this.renderGraph()
     }
     return (
