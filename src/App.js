@@ -315,6 +315,7 @@ class Graph extends Component {
             return num;
           });
           self.setState({data: dat});
+
       })
 
     svg.selectAll("dot")
