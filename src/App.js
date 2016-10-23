@@ -45,6 +45,12 @@ class App extends Component {
   render() {
     return (
       <div className="container">
+      <div id="vertical-slider-column">
+      <VerticalSlider
+      data={this.state.data}
+      publishData={(data) => this.publishData(data)}
+      />
+      </div>
         <div id="graph-container">
           <div id="graph-column">
             <h1 id="graph-title">Tax Graph</h1>
@@ -55,17 +61,6 @@ class App extends Component {
                  dataRange={this.state.dataRange}
                  data={this.state.data}
                  />
-          </div>
-          <div id="vertical-slider-column">
-          <div id ="vertical-slider" className="income-element">
-            <input id="vertical-input" type="range" className="form-input income-element"
-              // value={this.state.income}
-              // min={0}
-              // max={this.props.dataRange.xMax}
-              // step={100}
-              // onChange={(e) => this.onIncomeChange(e)}
-            />
-          </div>
           </div>
           <div id="statistics-column">
             <h2>Statistics</h2>
@@ -78,6 +73,53 @@ class App extends Component {
       </div>
     );
   }
+}
+
+class VerticalSlider extends Component {
+  constructor() {
+    super();
+    this.state = {
+      val: 0
+    }
+  }
+
+  onMouseUp(e) {
+    this.setState({val:0});
+  }
+
+  onSliderChange(e) {
+    var oldVal = this.state.val;
+    var newVal = e.target.value;
+    var diff = newVal - oldVal;
+    var data = this.props.data;
+    data.map(function(obj){
+      var y = obj["Tax Rate"] + diff / 3;
+      if (y > 100) {
+        obj["Tax Rate"] = 100;
+      } else if (y < 0) {
+        obj["Tax Rate"] = 0;
+      } else {
+        obj["Tax Rate"] = y;
+      }
+      return obj;
+    });
+    this.props.publishData(data);
+    this.setState({val: newVal});
+  }
+
+  render() {
+    return (
+      <div id ="vertical-slider" className="income-element">
+        <input id="vertical-input" type="range" className="form-input income-element"
+           value={this.state.val}
+           min={-100} max={100} step={1}
+           onChange={(e) => this.onSliderChange(e)}
+           onMouseUp={(e) => this.onMouseUp(e)}
+        />
+      </div>
+    );
+  }
+
 }
 
 class Statistics extends Component {
