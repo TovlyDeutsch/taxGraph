@@ -393,6 +393,8 @@ class GraphAxes extends Component {
     x.domain([0, dataRange.xMax]);
     y.domain([0, dataRange.yMax]);
 
+    g.select(".axis--x").remove();
+
     g.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + areaDims.height + ")")
