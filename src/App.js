@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import * as d3 from 'd3';
 import {event as currentEvent} from 'd3';
- import $ from 'jquery';
+import $ from 'jquery';
 
 import 'spectre.css/dist/spectre.min.css'
 import './App.css'
@@ -27,7 +27,7 @@ class App extends Component {
         <div id="graph-container">
           <div id="graph-column">
             <h1 id="graph-title">Tax Graph</h1>
-            <Graph width="400" height="300"
+            <Graph width="750" height="500"
                  margin={{top: 10, right: 10, bottom: 30, left: 30}}
                  publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
                  publishData={(data) => this.publishData(data)}
@@ -360,7 +360,7 @@ class Graph extends Component {
         var newYVal = (areaDims.height - (cy - margin.top)) * dataRange.yMax / areaDims.height;
         if (newYVal < 0) {
           data[i]["Tax Rate"] = 0;
-        } if (newYVal > 100) {
+        } else if (newYVal > 100) {
           data[i]["Tax Rate"] = 100;
         } else {
           data[i]["Tax Rate"] = newYVal;
