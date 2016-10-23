@@ -38,7 +38,7 @@ class App extends Component {
       </div>
         <div id="graph-container">
           <div id="graph-column">
-            <h1 id="graph-title">Tax Graph</h1>
+            <h1 id="graph-title">Tax Graphs</h1>
             <Graph width="750" height="500"
                 margin={{top: 10, right: 10, bottom: 30, left: 30}}
                 publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
