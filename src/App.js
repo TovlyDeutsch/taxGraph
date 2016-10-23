@@ -117,6 +117,10 @@ class Statistics extends Component {
     return 0;
   }
 
+  formatMonetaryOutput(m) {
+    return Math.round(m).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
   onIncomeChange(e) {
 
   }
@@ -149,11 +153,11 @@ class Statistics extends Component {
             <tbody>
               <tr>
                 <td>Income Tax</td>
-                <td>${this.amtTaxes(190000)}</td>
+                <td>${this.formatMonetaryOutput(this.amtTaxes(190000))}</td>
               </tr>
               <tr>
                 <td>Federal Tax Revenue</td>
-                <td>${this.totalRevenue()}</td>
+                <td>${this.formatMonetaryOutput(this.totalRevenue())}</td>
               </tr>
             </tbody>
           </table>
