@@ -1,0 +1,38 @@
+svg {
+  margin: 30px;
+}
+
+.axis--x path {
+  display: none;
+}
+
+text {
+  font-size: 16px;
+}
+
+.line {
+  fill: none;
+  stroke: #5fbeff;
+  stroke-width: 5px;
+  transition: all 0.1s;
+}
+
+.line:hover {
+  stroke: #8bd0ff;
+  stroke-width: 7px;
+}
+
+/*.hoverLine {
+  fill: none;
+  stroke: rgba(0,0,0,0);
+  stroke-width: 30px;
+}*/
+
+circle:hover {
+  transform: scale(1.6);
+
+}
+circle {
+  transition: all 0.2s;
+  transform-origin: 50% 50%;
+}
