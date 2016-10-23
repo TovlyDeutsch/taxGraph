@@ -9,7 +9,13 @@ import './App.css'
 class App extends Component {
   constructor() {
     super();
-    this.state = {data: null};
+    this.state = {
+      data: null,
+      dataRange: {xMax: 500000, yMax: 40}
+    };
+  }
+  publishDataRange(dataRange) {
+    this.setState({dataRange: dataRange});
   }
   publishData(data) {
     this.setState({data: data});
@@ -17,17 +23,21 @@ class App extends Component {
   render() {
     return (
       <div className="container">
-        <div className="columns">
-          <div className="column col-6">
+        <div id="graph-container">
+          <div id="graph-column">
             <h1>Tax Graph</h1>
             <Graph width="400" height="300"
                  margin={{top: 10, right: 10, bottom: 20, left: 20}}
+                 publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
                  publishData={(data) => this.publishData(data)}
                  />
           </div>
-          <div className="column col-6">
+          <div id="statistics-column">
             <h2>Statistics</h2>
-            <Statistics data={this.state.data} />
+            <Statistics
+              dataRange={this.state.dataRange}
+              data={this.state.data}
+            />
           </div>
         </div>
       </div>
@@ -38,7 +48,10 @@ class App extends Component {
 class Statistics extends Component {
   constructor() {
     super();
-    this.state = {censusInfo: null};
+    this.state = {
+      censusInfo: null,
+      income: 190000
+    };
   }
   componentDidMount() {
     var self = this;
@@ -104,26 +117,47 @@ class Statistics extends Component {
     return 0;
   }
 
+  onIncomeChange(e) {
+
+  }
+
+  onIncomeTextChange(e) {
+
+  }
+
   render() {
     var censusInfo = this.state.censusInfo;
     if (censusInfo != null && this.props.data != null) {
       return (
-        <table className="table table-striped table-hover">
-          <thead>
-            <th>Estimates</th>
-            <th>USD</th>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Income Tax</td>
-              <td>${this.amtTaxes(190000)}</td>
-            </tr>
-            <tr>
-              <td>Federal Tax Revenue</td>
-              <td>${this.totalRevenue()}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="container">
+          <div className="income-element">
+            <label className="form-label income-element">Your Income</label>
+            <input type="range" className="form-input income-element"
+              value={this.state.income}
+              onChange={(e) => this.onIncomeChange(e)}
+            />
+            <input type="text" className="form-input income-element"
+              value={this.state.incomeText}
+              onChange={(e) => this.onIncomeTextChange(e)}
+            />
+          </div>
+          <table className="table table-striped table-hover">
+            <thead>
+              <th>Estimates</th>
+              <th>USD</th>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Income Tax</td>
+                <td>${this.amtTaxes(190000)}</td>
+              </tr>
+              <tr>
+                <td>Federal Tax Revenue</td>
+                <td>${this.totalRevenue()}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       );
     } else {
       return <p>Loading...</p>
@@ -161,6 +195,8 @@ class Graph extends Component {
       if (error) throw error;
       var dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
                        yMax: d3.max(data, function(d) { return d["Tax Rate"]; })};
+      self.props.publishDataRange(dataRange);
+
       x.domain([0, dataRange.xMax]);
       y.domain([0, dataRange.yMax]);
 

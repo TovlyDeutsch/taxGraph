@@ -1,9 +1,6 @@
 #graph-column, #statistics-column {
-    display: inline-block;
-}
-
-#statistics-column {
-  float: right;
+  display: inline-block;
+  float: left;
 }
 
 h1, h2, h3 {
@@ -15,4 +12,8 @@ h1, h2, h3 {
   #graph-column, #statistics-column {
     display: block;
   }
+}
+
+.income-element {
+  display: inline-block !important;
 }
