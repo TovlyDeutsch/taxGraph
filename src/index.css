@@ -19,7 +19,7 @@ text {
 
 .line:hover {
   stroke: #8bd0ff;
-  stroke-width: 9px;
+  stroke-width: 7px;
 }
 
 /*.hoverLine {

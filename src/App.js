@@ -33,6 +33,17 @@ class App extends Component {
                  publishData={(data) => this.publishData(data)}
                  />
           </div>
+          <div id="vertical-slider-column">
+          <div id ="vertical-slider" className="income-element">
+            <input id="vertical-input" type="range" className="form-input income-element"
+              // value={this.state.income}
+              // min={0}
+              // max={this.props.dataRange.xMax}
+              // step={100}
+              // onChange={(e) => this.onIncomeChange(e)}
+            />
+          </div>
+          </div>
           <div id="statistics-column">
             <h2>Statistics</h2>
             <Statistics
@@ -285,38 +296,25 @@ class Graph extends Component {
       .attr("class", "line")
       .attr("d", line)
 
-    // var hiddenPath = g.append("path")
-    //     .datum(data)
-    //     .attr("class", "hoverLine")
-    //     .attr("d", line)
+    path.on('click', function(d){
+      var coords = d3.mouse(this);
+      var newData = {
+        'Tax Bracket': Math.round( x.invert(coords[0])),  // Takes the pixel number to convert to number
+        'Tax Rate': Math.round( y.invert(coords[1]))
+      };
 
-      // hiddenPath.on('mouseover', function(d){
-      //   $('.line').css("stroke-width", 9)
-      // })
-      //
-      // hiddenPath.on('mouseout', function(d){
-      //   $('.line').css("stroke-width", 5)
-      // })
+      var dat = self.state.data;
+      dat.push(newData);
+      dat.sort(function(a, b) {
+        var num = a["Tax Bracket"] - b["Tax Bracket"];
+        if(num === 0){
+          return a["Tax Rate"] - b["Tax Rate"]
+        }
+        return num;
+      });
 
-      path.on('click', function(d){
-          var coords = d3.mouse(this);
-          var newData = {
-            'Tax Bracket': Math.round( x.invert(coords[0])),  // Takes the pixel number to convert to number
-            'Tax Rate': Math.round( y.invert(coords[1]))
-          };
-          var dat = self.state.data;
-          dat.push(newData);
-          console.log(dat);
-          dat.sort(function(a, b) {
-            var num = a["Tax Bracket"] - b["Tax Bracket"];
-            if(num === 0){
-              return a["Tax Rate"] - b["Tax Rate"]
-            }
-            return num;
-          });
-          self.setState({data: dat});
-
-      })
+      self.setState({data: dat});
+    });
 
     svg.selectAll("dot")
       .data(data)
@@ -367,6 +365,7 @@ class Graph extends Component {
         }
 
         self.setState({data: data});
+        self.props.publishData(data);
       }));
   }
 
