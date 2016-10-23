@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import * as d3 from 'd3';
 import {event as currentEvent} from 'd3';
-// import $ from 'jquery';
+ import $ from 'jquery';
 
 import 'spectre.css/dist/spectre.min.css'
 import './App.css'
@@ -22,7 +22,7 @@ class App extends Component {
           <div id="graph-column">
             <h1>Tax Graph</h1>
             <Graph width="960" height="500"
-            margin={{top: 10 , right: 10, bottom: 20, left: 20}}
+            margin={{top: 10 , right: 10, bottom: 30, left: 30}}
             publishData={(data) => this.publishData(data)}
             />
           </div>
@@ -79,7 +79,7 @@ class Graph extends Component {
         .append("text")
         .attr("fill", "#000")
         .attr("transform", "rotate(-90)")
-        .attr("y", 6)
+        .attr("y", 7)
         .attr("dy", "0.71em")
         .style("text-anchor", "end")
         .text("Rate (%)");
@@ -124,14 +124,18 @@ class Graph extends Component {
       .attr("class", "line")
       .attr("d", line)
 
-      // path.on('mouseover', function(d){
-      //   console.log('gerhw')
-      //   self.setState({mouseover: true});
-      // })
+    var hiddenPath = g.append("path")
+        .datum(data)
+        .attr("class", "hoverLine")
+        .attr("d", line)
 
-      // path.on('mouseout', function(d){
-      //   self.setState({mouseover: false});
-      // })
+      hiddenPath.on('mouseover', function(d){
+        $('.line').css("stroke-width", 9)
+      })
+
+      hiddenPath.on('mouseout', function(d){
+        $('.line').css("stroke-width", 5)
+      })
 
       path.on('click', function(d){
           var coords = d3.mouse(this);
@@ -149,14 +153,13 @@ class Graph extends Component {
             }
             return num;
           });
-          console.log(dat)
           self.setState({data: dat});
       })
 
     svg.selectAll("dot")
       .data(data)
       .enter().append("circle")
-      .attr("r", 3.5)
+      .attr("r", 6)
       .attr("index", function(d, i) { return i; })
       .attr("cx", function(d) { return x(d["Tax Bracket"]) + margin.left; })
       .attr("cy", function(d) { return y(d["Tax Rate"]) + margin.top; });
