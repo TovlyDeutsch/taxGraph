@@ -49,6 +49,12 @@ class App extends Component {
           </div>
           <div id="statistics-column">
             <h3>Statistics & Options</h3>
+            <ul className="instructions">
+                <li>Drag the points or the slider on the left to customize the graph.</li>
+                <li>Click on the lines to add more points.</li>
+                <li>Set presets of existing, proposed, and joke tax plans.</li>
+                <li>Enter income and view the tax plan's effect below.</li>
+            </ul>
             <DataSelector
                 publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
                 publishData={(data) => this.publishData(data)}
@@ -58,6 +64,7 @@ class App extends Component {
                 dataRange={this.state.dataRange}
                 data={this.state.data}
                 />
+            <p className="blurb">* This chart uses U.S. Census Data to calculate Federal Tax Revenue. This chart assumes single filing. Clinton's tax plan is offered in a truncated version for easier comparisons to other tax plans.</p>
           </div>
         </div>
       </div>

@@ -12,6 +12,16 @@
   margin-left: 3rem;
 }
 
+.instructions > li {
+  margin-top: 5px;
+}
+
+.blurb {
+  max-width: 450px;
+  margin-left: 1.2rem;
+  margin-top: 1rem;
+}
+
 #graph-column {
   margin-left: 20px;
 }
