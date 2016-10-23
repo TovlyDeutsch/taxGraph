@@ -12,16 +12,19 @@ class App extends Component {
     super();
     this.state = {
       data: null,
-      dataRange: null
+      dataRange: null,
+      dirty: false
     };
   }
 
   publishDataRange(dataRange) {
-    this.setState({dataRange: dataRange});
+    this.setState({dataRange: dataRange,
+                   dirty: false});
   }
 
   publishData(data) {
-    this.setState({data: data});
+    this.setState({data: data,
+                   dirty: true});
   }
 
   render() {
@@ -49,6 +52,7 @@ class App extends Component {
             <DataSelector
                 publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
                 publishData={(data) => this.publishData(data)}
+                dirty={this.state.dirty}
                 />
             <Statistics
                 dataRange={this.state.dataRange}
@@ -75,19 +79,22 @@ class DataSelector extends Component {
 
   handleDataFileChange(f) {
     var self = this;
-    d3.tsv(f, function(d) {
-      d["Tax Bracket"] = +d["Tax Bracket"];
-      d["Tax Rate"] = +d["Tax Rate"];
-      return d;
-    }, function(error, data) {
-      if (error) throw error;
-      var dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
-                       yMax: 100};
-      console.log("DATA FILE CHANGE");
-      self.props.publishDataRange(dataRange);
-      self.props.publishData(data);
-      self.setState({dataFile: f});
-    });
+    if (f === "custom") {
+      self.setState({dataFile: "custom"});
+    } else {
+      d3.tsv(f, function(d) {
+        d["Tax Bracket"] = +d["Tax Bracket"];
+        d["Tax Rate"] = +d["Tax Rate"];
+        return d;
+      }, function(error, data) {
+        if (error) throw error;
+        var dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
+                         yMax: 100};
+        self.props.publishData(data);
+        self.props.publishDataRange(dataRange);
+        self.setState({dataFile: f});
+      });
+    }
   }
 
   render() {
@@ -95,7 +102,7 @@ class DataSelector extends Component {
       <div className="form-group data-selector-container">
         <label className="form-label">Preset</label>
         <select className="form-select"
-            value={this.state.dataFile}
+            value={this.props.dirty ? "custom" : this.state.dataFile}
             onChange={(s) => this.handleDataFileChange(s.target.value)}
         >
            <option value="taxRates.tsv">Current Tax Code (default)</option>
@@ -104,6 +111,7 @@ class DataSelector extends Component {
            <option value="TrumpTaxPlan.tsv">Trump</option>
            <option value="highwayRobbery.tsv">Highway Robbery</option>
            <option value="anarchy.tsv">Anarchy</option>
+           <option value="custom">Custom</option>
         </select>
       </div>
     );
