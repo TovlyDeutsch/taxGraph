@@ -12,6 +12,10 @@
   margin-left: 3rem;
 }
 
+#graph-column {
+  margin-left: 20px;
+}
+
 @media (max-width: 250px) {
   #graph-column, #statistics-column {
     display: block;
@@ -24,9 +28,11 @@
 
 #vertical-input {
   transform-origin: left;
-  transform: rotate(90deg);
+  transform: rotate(270deg);
   width: 450px;
-  top: 140px;
+  top: 580px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .data-selector-container {
