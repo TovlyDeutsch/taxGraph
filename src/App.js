@@ -50,7 +50,8 @@ class Statistics extends Component {
     super();
     this.state = {
       censusInfo: null,
-      income: 190000
+      income: 190000,
+      incomeText: "190000"
     };
   }
   componentDidMount() {
@@ -61,7 +62,6 @@ class Statistics extends Component {
       return d;
     }, function(error, censusInfo) {
       if (error) throw error;
-      console.log(censusInfo);
       self.setState({censusInfo: censusInfo});
     });
   }
@@ -122,11 +122,17 @@ class Statistics extends Component {
   }
 
   onIncomeChange(e) {
-
+    this.setState({income: e.target.value,
+                   incomeText: this.state.income.toString()});
   }
 
   onIncomeTextChange(e) {
-
+    var incomeText = e.target.value;
+    this.setState({incomeText: incomeText});
+    var income = parseInt(incomeText);
+    if (!Number.isNaN(income)) {
+      this.setState({income: income});
+    }
   }
 
   render() {
@@ -138,17 +144,25 @@ class Statistics extends Component {
             <label className="form-label income-element">Your Income</label>
             <input type="range" className="form-input income-element"
               value={this.state.income}
+              min={0}
+              max={this.props.dataRange.xMax}
+              step={100}
               onChange={(e) => this.onIncomeChange(e)}
             />
-            <input type="text" className="form-input income-element"
+            <input type="text"
+              className={"form-input income-element" +
+                (Number.isNaN(parseInt(this.state.incomeText)) ?
+                  " is-danger" : "")}
               value={this.state.incomeText}
               onChange={(e) => this.onIncomeTextChange(e)}
             />
           </div>
           <table className="table table-striped table-hover">
             <thead>
-              <th>Estimates</th>
-              <th>USD</th>
+              <tr>
+                <th>Estimates</th>
+                <th>USD</th>
+              </tr>
             </thead>
             <tbody>
               <tr>
