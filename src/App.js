@@ -99,6 +99,8 @@ class DataSelector extends Component {
             onChange={(s) => this.handleDataFileChange(s.target.value)}
         >
            <option value="taxRates.tsv">Current Tax Code (default)</option>
+           <option value="ClintonTaxPlan.tsv">Clinton</option>
+           <option value="TrumpTaxPlan.tsv">Trump</option>
            <option value="highwayRobbery.tsv">Highway Robbery</option>
            <option value="anarchy.tsv">Anarchy</option>
         </select>
