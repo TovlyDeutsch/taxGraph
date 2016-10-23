@@ -1,18 +1,23 @@
 #graph-column, #statistics-column {
-    display: inline-block;
+  display: inline-block;
+  float: left;
+}
+
+#graph-title {
+  margin-left: 3rem;
 }
 
 #statistics-column {
-  float: right;
-}
-
-h1, h2, h3 {
+  margin-top: 1rem;
   margin-left: 3rem;
-  margin-right: 3rem;
 }
 
 @media (max-width: 250px) {
   #graph-column, #statistics-column {
     display: block;
   }
+}
+
+.income-element {
+  display: inline-block !important;
 }

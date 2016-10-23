@@ -10,28 +10,185 @@ import './App.css'
 class App extends Component {
   constructor() {
     super();
-    this.state = {data: null};
+    this.state = {
+      data: null,
+      dataRange: {xMax: 500000, yMax: 40}
+    };
+  }
+  publishDataRange(dataRange) {
+    this.setState({dataRange: dataRange});
   }
   publishData(data) {
     this.setState({data: data});
   }
   render() {
     return (
-      <div id="top-container">
+      <div className="container">
         <div id="graph-container">
           <div id="graph-column">
-            <h1>Tax Graph</h1>
-            <Graph width="960" height="500"
-            margin={{top: 10 , right: 10, bottom: 30, left: 30}}
-            publishData={(data) => this.publishData(data)}
-            />
+            <h1 id="graph-title">Tax Graph</h1>
+            <Graph width="400" height="300"
+                 margin={{top: 10, right: 10, bottom: 30, left: 30}}
+                 publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
+                 publishData={(data) => this.publishData(data)}
+                 />
           </div>
           <div id="statistics-column">
             <h2>Statistics</h2>
+            <Statistics
+              dataRange={this.state.dataRange}
+              data={this.state.data}
+            />
           </div>
         </div>
       </div>
     );
+  }
+}
+
+class Statistics extends Component {
+  constructor() {
+    super();
+    this.state = {
+      censusInfo: null,
+      income: 190000,
+      incomeText: "190000"
+    };
+  }
+  componentDidMount() {
+    var self = this;
+    d3.tsv("censusIncomes.tsv", function(d) {
+      d["Number"] = +d["Number"];
+      d["Dollars"] = +d["Dollars"];
+      return d;
+    }, function(error, censusInfo) {
+      if (error) throw error;
+      self.setState({censusInfo: censusInfo});
+    });
+  }
+
+  amtTaxes(income) {
+    var data = this.props.data;
+    if (data != null) {
+      var amt = 0;
+
+      for (var i = 1; i < data.length; i++) {
+        var lowerBracket = data[i-1]["Tax Bracket"];
+        var lowerRate = data[i-1]["Tax Rate"] / 100;
+        var upperBracket = data[i]["Tax Bracket"];
+        var upperRate = data[i]["Tax Rate"] / 100;
+
+        // only proceed if not a vertical line
+        if (upperBracket != lowerBracket) {
+          var slope = (upperRate - lowerRate) / (upperBracket - lowerBracket)
+
+          var dx;
+          if (upperBracket > income) {
+            dx = income - lowerBracket;
+            upperRate = lowerRate + slope * dx;
+
+            // schedule loop termination
+            i = data.length;
+          } else {
+            dx = upperBracket - lowerBracket;
+          }
+
+          amt += ((lowerRate + upperRate) * dx) / 2;
+        }
+      }
+
+      return amt;
+    }
+    return 0;
+  }
+
+  totalRevenue() {
+    var data = this.props.data;
+    var censusInfo = this.state.censusInfo;
+    if (censusInfo != null && data != null) {
+      var revenue = 0;
+      for (var i = 0; i < censusInfo.length; i++) {
+        var numPersons = censusInfo[i]["Number"] * 990;
+        var income = censusInfo[i]["Dollars"];
+        var taxes = this.amtTaxes(income);
+        revenue += numPersons * taxes;
+      }
+      return revenue;
+    }
+    return 0;
+  }
+
+  formatMonetaryOutput(m) {
+    return Math.round(m).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  onIncomeChange(e) {
+    this.setState({income: e.target.value,
+                   incomeText: this.state.income.toString()});
+  }
+
+  onIncomeTextChange(e) {
+    var incomeText = e.target.value;
+    this.setState({incomeText: incomeText});
+    var income = parseInt(incomeText);
+    if (!Number.isNaN(income)) {
+      this.setState({income: income});
+    }
+  }
+
+  render() {
+    var censusInfo = this.state.censusInfo;
+    if (censusInfo != null && this.props.data != null) {
+      return (
+        <div className="container">
+          <div className="income-element">
+            <label className="form-label income-element">Enter Your Income</label>
+            <input type="range" className="form-input income-element"
+              value={this.state.income}
+              min={0}
+              max={this.props.dataRange.xMax}
+              step={100}
+              onChange={(e) => this.onIncomeChange(e)}
+            />
+            <input type="text"
+              className={"form-input income-element" +
+                (Number.isNaN(parseInt(this.state.incomeText)) ?
+                  " is-danger" : "")}
+              value={this.state.incomeText}
+              onChange={(e) => this.onIncomeTextChange(e)}
+            />
+          </div>
+          <table className="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Estimates</th>
+                <th>USD</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Your Income Tax</td>
+                <td>${this.formatMonetaryOutput(this.amtTaxes(this.state.income))}</td>
+              </tr>
+              <tr>
+                <td>Tax for Income of $50,000</td>
+                <td>${this.formatMonetaryOutput(this.amtTaxes(50000))}</td>
+              </tr>
+              <tr>
+                <td>Tax for Income of $16,000 <small>(family of 2 in poverty)</small></td>
+                <td>${this.formatMonetaryOutput(this.amtTaxes(16000))}</td>
+              </tr>
+              <tr>
+                <td>Federal Tax Revenue</td>
+                <td>${this.formatMonetaryOutput(this.totalRevenue())}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      );
+    } else {
+      return <p>Loading...</p>
+    }
   }
 }
 
@@ -64,7 +221,10 @@ class Graph extends Component {
     }, function(error, data) {
       if (error) throw error;
       var dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
-                       yMax: d3.max(data, function(d) { return d["Tax Rate"]; })};
+                       yMax: 100};
+                       //yMax: d3.max(data, function(d) { return d["Tax Rate"]; })};
+      self.props.publishDataRange(dataRange);
+
       x.domain([0, dataRange.xMax]);
       y.domain([0, dataRange.yMax]);
 
@@ -98,6 +258,7 @@ class Graph extends Component {
         data: data
       });
 
+      self.props.publishData(data);
     });
   }
 
@@ -198,6 +359,8 @@ class Graph extends Component {
         var newYVal = (areaDims.height - (cy - margin.top)) * dataRange.yMax / areaDims.height;
         if (newYVal < 0) {
           data[i]["Tax Rate"] = 0;
+        } if (newYVal > 100) {
+          data[i]["Tax Rate"] = 100;
         } else {
           data[i]["Tax Rate"] = newYVal;
         }
