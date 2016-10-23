@@ -16,24 +16,6 @@ class App extends Component {
     };
   }
 
-  componentDidMount() {
-    var self = this;
-    d3.tsv("taxRates.tsv", function(d) {
-      d["Tax Bracket"] = +d["Tax Bracket"];
-      d["Tax Rate"] = +d["Tax Rate"];
-      return d;
-    }, function(error, data) {
-      if (error) throw error;
-      var dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
-                       yMax: 100};
-      console.log(data);
-      self.setState({
-        data: data,
-        dataRange: dataRange
-      });
-    });
-  }
-
   publishDataRange(dataRange) {
     this.setState({dataRange: dataRange});
   }
@@ -49,32 +31,72 @@ class App extends Component {
           <div id="graph-column">
             <h1 id="graph-title">Tax Graph</h1>
             <Graph width="750" height="500"
-                 margin={{top: 10, right: 10, bottom: 30, left: 30}}
-                 publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
-                 publishData={(data) => this.publishData(data)}
-                 dataRange={this.state.dataRange}
-                 data={this.state.data}
-                 />
-          </div>
-          <div id="vertical-slider-column">
-          <div id ="vertical-slider" className="income-element">
-            <input id="vertical-input" type="range" className="form-input income-element"
-              // value={this.state.income}
-              // min={0}
-              // max={this.props.dataRange.xMax}
-              // step={100}
-              // onChange={(e) => this.onIncomeChange(e)}
-            />
-          </div>
+                margin={{top: 10, right: 10, bottom: 30, left: 30}}
+                publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
+                publishData={(data) => this.publishData(data)}
+                dataRange={this.state.dataRange}
+                data={this.state.data}
+                />
           </div>
           <div id="statistics-column">
-            <h2>Statistics</h2>
+            <h3>Statistics & Options</h3>
+            <DataSelector
+                publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
+                publishData={(data) => this.publishData(data)}
+                />
             <Statistics
-              dataRange={this.state.dataRange}
-              data={this.state.data}
-            />
+                dataRange={this.state.dataRange}
+                data={this.state.data}
+                />
           </div>
         </div>
+      </div>
+    );
+  }
+}
+
+class DataSelector extends Component {
+  constructor() {
+    super();
+    this.state = {
+      dataFile: "taxRates.tsv"
+    };
+  }
+
+  componentDidMount() {
+    this.handleDataFileChange("taxRates.tsv");
+  }
+
+  handleDataFileChange(f) {
+    var self = this;
+    d3.tsv(f, function(d) {
+      d["Tax Bracket"] = +d["Tax Bracket"];
+      d["Tax Rate"] = +d["Tax Rate"];
+      return d;
+    }, function(error, data) {
+      if (error) throw error;
+      var dataRange = {xMax: d3.max(data, function(d) { return d["Tax Bracket"] }),
+                       yMax: 100};
+      console.log("DATA FILE CHANGE");
+      self.props.publishDataRange(dataRange);
+      self.props.publishData(data);
+      self.setState({dataFile: f});
+    });
+
+  }
+
+  render() {
+    return (
+      <div className="form-group data-selector-container">
+        <label className="form-label">Preset</label>
+        <select className="form-select"
+            value={this.state.dataFile}
+            onChange={(s) => this.handleDataFileChange(s.target.value)}
+        >
+           <option value="taxRates.tsv">Current (default)</option>
+           <option value="highwayRobbery.tsv">Highway Robbery</option>
+           <option value="anarchy.tsv">Anarchy</option>
+        </select>
       </div>
     );
   }
@@ -229,7 +251,7 @@ class Statistics extends Component {
 class Graph extends Component {
   constructor() {
     super();
-    this.state = {svg: null};
+    this.state = {s: null};
   }
 
   componentDidMount() {
@@ -248,7 +270,7 @@ class Graph extends Component {
     var line = d3.line().x(function(d) { return x(d["Tax Bracket"]); })
                         .y(function(d) { return y(d["Tax Rate"]); });
 
-    self.setState({
+    self.setState({s: {
       areaDims: areaDims,
       svgDims: svgDims,
       margin: margin,
@@ -258,28 +280,53 @@ class Graph extends Component {
       g: g,
       x: x,
       y: y,
-    });
+    }});
   }
 
-  renderGraph() {
-    var self = this;
 
-    var areaDims = this.state.areaDims;
-    var svgDims = this.state.svgDims;
-    var margin = this.state.margin;
-    var svg = this.state.svg;
-    var line = this.state.line;
-    var g = this.state.g;
-    var x = this.state.x;
-    var y = this.state.y;
+  render() {
+    return (
+      <div>
+        <svg width={this.props.width} height={this.props.height}></svg>
+        <GraphAxes
+            s={this.state.s}
+            dataRange={this.props.dataRange}
+            />
+        <GraphPoints
+            s={this.state.s}
+            publishDataRange={this.props.publishDataRange}
+            publishData={this.props.publishData}
+            data={this.props.data}
+            dataRange={this.props.dataRange}
+            />
+      </div>
+    );
+  }
+}
+
+class GraphAxes extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.dataRange == null) {
+      return false;
+    } else if (this.props.dataRange == null) {
+      return true;
+    } else {
+      var c = this.props.dataRange;
+      var n = nextProps.dataRange;
+      return c.xMax != n.xMax || c.yMax != n.yMax;
+    }
+  }
+
+  render() {
+    if (this.props.s == null || this.props.dataRange == null) return null;
+    console.log("RENDERING GraphAxes");
+
+    var areaDims = this.props.s.areaDims;
+    var g = this.props.s.g;
+    var x = this.props.s.x;
+    var y = this.props.s.y;
 
     var dataRange = this.props.dataRange;
-    var data = this.props.data;
-
-    if (dataRange == null || data == null) {
-      return;
-    }
-    console.log("HEY");
 
     x.domain([0, dataRange.xMax]);
     y.domain([0, dataRange.yMax]);
@@ -300,6 +347,30 @@ class Graph extends Component {
       .style("text-anchor", "end")
       .text("Rate (%)");
 
+    return null;
+  }
+}
+
+class GraphPoints extends Component {
+  render() {
+    if (this.props.s == null ||
+        this.props.dataRange == null ||
+        this.props.data == null) {
+        return null;
+    }
+    var self = this;
+
+    var areaDims = this.props.s.areaDims;
+    var svgDims = this.props.s.svgDims;
+    var margin = this.props.s.margin;
+    var svg = this.props.s.svg;
+    var line = this.props.s.line;
+    var g = this.props.s.g;
+    var x = this.props.s.x;
+    var y = this.props.s.y;
+
+    var dataRange = this.props.dataRange;
+    var data = this.props.data;
 
     svg.selectAll('path').remove();
     svg.selectAll('circle').remove();
@@ -377,17 +448,7 @@ class Graph extends Component {
 
         self.props.publishData(data);
       }));
-  }
-
-  render() {
-    console.log("Blank Render");
-    if (this.props.data != null && this.props.dataRange != null) {
-      console.log("RENDERING GRAPH");
-      this.renderGraph()
-    }
-    return (
-      <svg width={this.props.width} height={this.props.height}></svg>
-    );
+    return null;
   }
 }
 

@@ -29,6 +29,10 @@
   top: 140px;
 }
 
+.data-selector-container {
+  margin-left: 1rem;
+}
+
 input[type=range] {
   -webkit-appearance: none;
   width: 100%;
