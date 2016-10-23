@@ -17,11 +17,16 @@ text {
   transition: all 0.1s;
 }
 
-.hoverLine {
+.line:hover {
+  stroke: #8bd0ff;
+  stroke-width: 9px;
+}
+
+/*.hoverLine {
   fill: none;
   stroke: rgba(0,0,0,0);
   stroke-width: 30px;
-}
+}*/
 
 circle:hover {
   transform: scale(1.6);

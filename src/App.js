@@ -124,18 +124,18 @@ class Graph extends Component {
       .attr("class", "line")
       .attr("d", line)
 
-    var hiddenPath = g.append("path")
-        .datum(data)
-        .attr("class", "hoverLine")
-        .attr("d", line)
+    // var hiddenPath = g.append("path")
+    //     .datum(data)
+    //     .attr("class", "hoverLine")
+    //     .attr("d", line)
 
-      hiddenPath.on('mouseover', function(d){
-        $('.line').css("stroke-width", 9)
-      })
-
-      hiddenPath.on('mouseout', function(d){
-        $('.line').css("stroke-width", 5)
-      })
+      // hiddenPath.on('mouseover', function(d){
+      //   $('.line').css("stroke-width", 9)
+      // })
+      //
+      // hiddenPath.on('mouseout', function(d){
+      //   $('.line').css("stroke-width", 5)
+      // })
 
       path.on('click', function(d){
           var coords = d3.mouse(this);
