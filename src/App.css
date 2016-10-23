@@ -3,9 +3,13 @@
   float: left;
 }
 
-h1, h2, h3 {
+#graph-title {
   margin-left: 3rem;
-  margin-right: 3rem;
+}
+
+#statistics-column {
+  margin-top: 1rem;
+  margin-left: 3rem;
 }
 
 @media (max-width: 250px) {

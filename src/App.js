@@ -25,7 +25,7 @@ class App extends Component {
       <div className="container">
         <div id="graph-container">
           <div id="graph-column">
-            <h1>Tax Graph</h1>
+            <h1 id="graph-title">Tax Graph</h1>
             <Graph width="400" height="300"
                  margin={{top: 10, right: 10, bottom: 20, left: 20}}
                  publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
@@ -129,7 +129,7 @@ class Statistics extends Component {
     var censusInfo = this.state.censusInfo;
     if (censusInfo != null && this.props.data != null) {
       return (
-        <div class="container">
+        <div className="container">
           <div className="income-element">
             <label className="form-label income-element">Your Income</label>
             <input type="range" className="form-input income-element"
