@@ -30,9 +30,10 @@ text {
 
 circle:hover {
   transform: scale(1.6);
-
 }
+
 circle {
-  transition: all 0.2s;
-  transform-origin: 50% 50%;
+  transition: transform 0.2s;
+  transform-box: fill-box;
+  transform-origin: center;
 }
