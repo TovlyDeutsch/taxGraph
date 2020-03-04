@@ -263,7 +263,7 @@ class Statistics extends Component {
 
   render() {
     var censusInfo = this.state.censusInfo;
-    if (censusInfo != null && this.props.data != null) {
+    if (censusInfo != null && this.props.data != null && this.props.dataRange) {
       return (
         <div className="container">
           <div className="income-element">
