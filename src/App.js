@@ -40,7 +40,7 @@ class App extends Component {
           <div id="graph-column">
             <h1 id="graph-title">Tax Graphs</h1>
             <Graph width="750" height="500"
-                margin={{top: 10, right: 10, bottom: 30, left: 30}}
+                margin={{top: 10, right: 30, bottom: 30, left: 50}}
                 publishDataRange={(dataRange) => this.publishDataRange(dataRange)}
                 publishData={(data) => this.publishData(data)}
                 dataRange={this.state.dataRange}
